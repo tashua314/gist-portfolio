@@ -131,7 +131,7 @@
     // GAイベント送信
     gtag('event', 'click_anchor', {
       event_category: 'navigation',
-      event_label: id
+      event_label: gists.find(gist => gist.id === id)?.title || id
     });
   }
 </script>
