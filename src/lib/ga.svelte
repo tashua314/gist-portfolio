@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { page } from '$app/stores'
+  import { onMount } from 'svelte';
 
-  $: {
+  onMount(() => {
     if (typeof gtag !== 'undefined') {
       gtag('config', 'G-MB7JWEJ8K7', {
         page_title: document.title,
-        page_path: $page.url.pathname,
-      })
+        page_path: window.location.pathname,
+      });
     }
-  }
+  });
 </script>
 
 <svelte:head>

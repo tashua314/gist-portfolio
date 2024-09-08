@@ -8,7 +8,6 @@ import Analytics from '$lib/ga.svelte'
 
 let title = "ゆーちゃん's Gists Portfolio";
 let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。';
-
 </script>
 
 <svelte:head>
