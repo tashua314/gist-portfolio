@@ -30,7 +30,7 @@ jobs:
         run: npm run fetch-gists
 
       - name: Move gists.json
-        run: mv build/static/gists.json build/gists.json
+        run: mv static/gists.json build/gists.json
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
