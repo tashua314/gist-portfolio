@@ -29,6 +29,9 @@ jobs:
           GET_GIST_TOKEN: ${{ secrets.GET_GIST_TOKEN }}
         run: npm run fetch-gists
 
+      - name: Move gists.json
+        run: mv static/gists.json gists.json
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
