@@ -4,6 +4,7 @@ import '../app.css';
 import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import Analytics from '$lib/ga.svelte'
 
 let title = "ゆーちゃん's Gists Portfolio";
@@ -41,6 +42,10 @@ let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリ�
       ゆーちゃん's Gists Portfolio
     </h1>
     <nav class="space-x-4 flex items-center">
+      <!-- GitHubリンク -->
+      <a href="https://github.com/tashua314/gist-portfolio" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 text-lg" aria-label="GitHub">
+        <FontAwesomeIcon icon={faGithub} class="fa-2x" />
+      </a>
       <!-- Xへのリンク -->
       <a href="https://twitter.com/tashua314" target="_blank" rel="noopener noreferrer" class="text-white hover:text-gray-300 text-lg">
         <FontAwesomeIcon icon={faTwitter} class="fa-2x" />
