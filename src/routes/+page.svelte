@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { base } from '$app/paths';
   import 'prismjs/themes/prism.css';
 
   // Font Awesomeアイコンのインポート
@@ -35,7 +36,7 @@
 
   // JSONファイルからGistsを取得
   async function fetchGists() {
-    const response = await fetch('gists.json');
+    const response = await fetch(`${base}/gists.json`);
     const json = await response.json();
     gists = json.map((gist: Gist, index: number) => {
       const title = gist.files.length > 0 ? `${gist.owner.login}/${gist.files[0].name}` : 'No Title';
