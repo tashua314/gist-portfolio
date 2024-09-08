@@ -3,8 +3,11 @@
 import '../app.css';
 import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
-  import { faUser } from '@fortawesome/free-solid-svg-icons'; // ユーザーアイコンのインポート
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+import Analytics from '$lib/ga.svelte'
 </script>
+
+<Analytics />
 
 <header class="bg-blue-600 p-4 shadow-md">
   <div class="container mx-auto flex justify-between items-center">
