@@ -106,9 +106,8 @@
     </div>
   </div>
 
-  <h1 class="text-4xl font-bold text-center mb-12">tashua314's Gists Portfolio</h1>
   <p class="text-center text-lg mb-8">
-    このサイトは、tashua314のGitHub Gistsを集めたポートフォリオです。<br>
+    このサイトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオです。<br>
     各Gistの詳細やコードプレビューを確認することができます。<br>
     プロジェクトのアイデアを探しているときや、開発のヒントとして役立ててもらえると幸いです。<br>
   </p>
