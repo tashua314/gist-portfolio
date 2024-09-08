@@ -23,13 +23,14 @@ let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリ�
   <meta property="og:description" content="{description}" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://tashua314.github.io/gist-portfolio/" />
-  <!-- <meta property="og:image" content="/path/to/og-image.jpg" /> -->
+  <meta property="og:image" content="card.jpg" />
 
   <!-- Twitter Card Tags -->
-  <!-- <meta name="twitter:card" content="summary_large_image" /> -->
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="{title}" />
   <meta name="twitter:description" content="{description}" />
-  <!-- <meta name="twitter:image" content="/path/to/twitter-image.jpg" /> -->
+  <meta name="twitter:site" content="@tashua314"> <!-- Xアカウントのユーザー名 -->
+  <meta name="twitter:image" content="card.jpg" />
 
   <!-- Viewport設定 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
