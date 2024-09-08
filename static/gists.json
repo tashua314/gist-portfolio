@@ -1,0 +1,248 @@
+{
+  "data": {
+    "viewer": {
+      "gists": {
+        "nodes": [
+          {
+            "description": "画像の特定の領域にぼかし効果を適用するスクリプト",
+            "files": [
+              {
+                "name": "blur_image_with_coords.py",
+                "text": "import sys\nimport os\nfrom PIL import Image, ImageFilter\n\ndef blur_image_with_coords():\n    \"\"\"\n    画像の特定の領域にぼかし効果を適用するスクリプトです。\n    コンソールから画像のパスとぼかす領域の座標（左、上、右、下）を指定して実行します。\n\n    引数:\n    - image_path (str): 処理対象の画像ファイルのパス\n    - left (int): ぼかしを適用する領域の左端のx座標\n    - top (int): ぼかしを適用する領域の上端のy座標\n    - right (int): ぼかしを適用する領域の右端のx座標\n    - bottom (int): ぼかしを適用する領域の下端のy座標\n\n    実行例:\n    python script.py /path/to/image.png 50 100 250 500\n    \n    出力:\n    - ぼかし処理が施された画像が、元の画像と同じディレクトリに \"_blurred\" がついた名前で保存されます。\n    例: abc.jpg -> abc_blurred.jpg, test.png -> test_blurred.png\n    \"\"\"\n    # 引数の処理と実行処理はここから\n    if len(sys.argv) != 6:\n        print(\"Usage: python script.py <image_path> <left> <top> <right> <bottom>\")\n        return\n    \n    image_path = sys.argv[1]\n    left = int(sys.argv[2])\n    top = int(sys.argv[3])\n    right = int(sys.argv[4])\n    bottom = int(sys.argv[5])\n\n    # Open the uploaded image\n    img = Image.open(image_path)\n\n    # Apply blur filter to the specified area\n    blurred_img = img.copy()\n    blurred_area = blurred_img.crop((left, top, right, bottom)).filter(ImageFilter.GaussianBlur(15))\n    blurred_img.paste(blurred_area, (left, top))\n\n    # Adjust output file name to include \"_blurred\" before the file extension\n    base_name, ext = os.path.splitext(os.path.basename(image_path))\n    output_filename = f\"{base_name}_blurred{ext}\"\n    \n    # Create output path in the same directory as the input image\n    output_dir = os.path.dirname(image_path)\n    output_path = os.path.join(output_dir, output_filename)\n\n    # Save the blurred image\n    blurred_img.save(output_path)\n    \n    print(f\"Blurred image saved to: {output_path}\")\n\n# Entry point for the script\nif __name__ == \"__main__\":\n    blur_image_with_coords()\n",
+                "language": {
+                  "name": "Python"
+                }
+              }
+            ],
+            "stargazerCount": 1,
+            "createdAt": "2024-09-07T07:20:56Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/be65c57db43f5974b248144da542dc1d",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "gptとlangchainを用いたテストスクリプト。",
+            "files": [
+              {
+                "name": "test_langchain_gpt.py",
+                "text": "import os\nfrom langchain.agents import load_tools\nfrom langchain.agents import initialize_agent\nfrom langchain.chat_models import ChatOpenAI\nfrom deep_translator import GoogleTranslator\n\n# LLMを設定\nllm = ChatOpenAI(model_name=os.environ[\"OPENAI_MODEL_NAME\"])\n\ntools = load_tools([\"google-search\"], llm=llm)\n\n# エージェントの作成\nagent = initialize_agent(\n        tools, llm, agent=\"zero-shot-react-description\", verbose=True)\n\nwhile True:\n    print(\"質問を入力してください。終了する場合はexitと入力してください。：\")\n    user_input = input()\n    if user_input == \"exit\":\n        print(\"終了します\")\n        break\n    else:\n        answer = agent.run(user_input)\n        translated = GoogleTranslator(source='auto', target='ja').translate(answer)\n        print(translated)\n",
+                "language": {
+                  "name": "Python"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2023-04-20T07:27:26Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/8d1eae683ddf6bd2b49bf1e3542eef93",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "githubのスター数の一覧を取得する",
+            "files": [
+              {
+                "name": "output_star.js",
+                "text": "/**\n * `https://github.com/{owner}/{repo}` のownerとrepoの情報をまとめたファイルを読み込み、\n * スター数一覧を追記したファイルを出力する。\n *\n * # 実行例\n * node task.js output_star\n *\n * # inファイル例\n * ```\n * facebook/react\n * vuejs/vue\n * jquery/jquery\n * ```\n *\n * # outファイル例\n * ```\n * facebook/react\t190187\n * vuejs/vue\t197000\n * jquery/jquery\t56371\n * ```\n * */\nconst ygor = require(\"ygor\");\nconst { Octokit } = require(\"@octokit/core\");\nconst fs = require('fs');\nconst readline = require(\"readline\");\nrequire('dotenv').config();\n\nconst IN_FILE_NAME = 'in';\nconst OUT_FILE_NAME = 'out';\n\n// arg._[0]: 読み込みファイルパス\n// 未設定の場合はIN_FILE_NAMEがデフォルト\nasync function output_star(arg) {\n  const octokit = new Octokit({\n    // .envファイルのGITHUB_TOKENにトークン設定\n    auth: process.env.GITHUB_TOKEN\n  })\n\n  const reader = _getReader(arg);\n\n  await reader.on('line', async (record) => {\n    let [owner, repo] = record.split('/');\n    res = await octokit.request('GET /repos/{owner}/{repo}', {\n      owner: owner,\n      repo: repo\n    });\n    let tmp = [];\n    // リポジトリ名\n    tmp.push(record);\n    // スター数\n    tmp.push(res['data']['stargazers_count']);\n    // 詳細\n    // tmp.push(res['data']['description']);\n    const str = tmp.join('\\t');\n    console.log(str);\n    // ファイル出力\n    fs.appendFile(OUT_FILE_NAME, str+'\\n', (err) => {\n      if (err) throw err;\n    });\n  });\n}\n\nfunction _setFile(arg) {\n  if (arg._[0]){\n    return arg._[0];\n  } else {\n    return IN_FILE_NAME;\n  }\n}\n\nfunction _getReader(arg) {\n  const stream = fs.createReadStream(_setFile(arg));\n  return readline.createInterface({ input: stream });\n}\n\n// コマンドの登録 ygor.task(コマンド名, 実行する関数)\n// owner, repoの一覧を受け取り、starの一覧を返す\nygor.tasks.add(\"output_star\", output_star);\n",
+                "language": {
+                  "name": "JavaScript"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2022-06-21T13:43:10Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/3ecdfb83b5aa4a924c1209471c00ef42",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "形態素解析した単語をカウントする",
+            "files": [
+              {
+                "name": "count_morphologically_analyzed_words.py",
+                "text": "#!/usr/bin/python\n# -*- coding: utf-8 -*-\n\"\"\"\n\n形態素解析で出力単語を数える\n\n    Examples:\n\n        >>> python count_noun.py <dir_name> -d\n           ディレクトリ内の全ファイルの出力単語をまとめて出力\n\n        >>> python count_noun.py <file_name>\n           対象ファイルの出力単語をまとめて出力\n\n\"\"\"\n\nfrom argparse import ArgumentParser\nimport MeCab\nimport sys\nimport re\nimport glob\nfrom collections import Counter\n\ndef execute(name, is_dir):\n    \"\"\"\n\n    メイン実行\n\n    Args:\n        name (string): 対象のファイルorディレクトリ名\n        is_dir (bool, optional): 対象がディレクトリの場合はTrue\n\n    Returns:\n       string[]: 出現単語一覧\n\n    \"\"\"\n\n    words = []\n    if (is_dir):\n        files = glob.glob(\"./{}/*\".format(name))\n        for file in files:\n            words = __file_action(file, words)\n    else:\n        words = __file_action(name, words)\n\n    return words\n\n\ndef __get_option():\n    \"\"\"\n    オプション取得\n    \"\"\"\n    argparser = ArgumentParser()\n    argparser.add_argument('name', help='file or dir name')\n    argparser.add_argument('-d', '--dir', action='store_true',\n                           help='select directory (default: file)')\n    return argparser.parse_args()\n\n\ndef __file_action(name, words):\n    \"\"\"\n    一つのファイルを形態素解析して単語抽出\n    \"\"\"\n    # ファイル読み込み\n    with open(name) as f:\n        data = f.read()\n\n    # パース\n    mecab = MeCab.Tagger()\n    parse = mecab.parse(data)\n    lines = parse.split('\\n')\n    items = (re.split('[\\t,]', line) for line in lines)\n\n    # 名詞をリストに格納\n    tmp_words = [\n        item[0] for item in items\n            if (\n                item[0] not in ('EOS', '', 't', 'ー') and\n                item[1] == '名詞' and item[2] == '一般')\n    ]\n    words.extend(tmp_words)\n    return words\n\n\nif __name__ == '__main__':\n    args = __get_option()\n    words = execute(args.name, args.dir)\n\n    # 頻度順に出力\n    counter = Counter(words)\n    for word, count in counter.most_common():\n        print(f\"{word}: {count}\")\n",
+                "language": {
+                  "name": "Python"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2021-03-07T11:35:51Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/61c5a29d73f2507a49d0658b8f2461a1",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "",
+            "files": [
+              {
+                "name": "calc_marketing.html",
+                "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>New Bonus Simulator</title>\n    <meta name=\"description\" content=\"新マーケティングプランのボーナスをシミューレーションできます。シェアリング／ビルディング／リーディングボーナスをそれぞれ計算してプランニングに活用しましょう。\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no\">\n    <meta name=\"robots\" content=\"noindex,nofollow,noarchive\" />\n    <script src=\"https://cdn.jsdelivr.net/npm/vue\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js\"></script>\n    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css\">\n    <!-- Global site tag (gtag.js) - Google Analytics -->\n    <script async src=\"https://www.googletagmanager.com/gtag/js?id=UA-133286515-2\"></script>\n    <script>\n      window.dataLayer = window.dataLayer || [];\n      function gtag(){dataLayer.push(arguments);}\n      gtag('js', new Date());\n\n      gtag('config', 'UA-133286515-2');\n    </script>\n\n    <style type=\"text/css\">\n    <!--\n    .container {\n        margin-top: 30px;\n    }\n    h2,h3,h4,h5 {\n        font-weight: bold;\n    }\n    h4 {\n      padding: 0.5em;/*文字周りの余白*/\n      color: #010101;/*文字色*/\n      background: #eaf3ff;/*背景色*/\n      border-bottom: solid 3px #516ab6;/*下線*/\n    }\n    label {\n      margin-bottom: 15px;\n    }\n    .describe {\n      position: relative;\n      margin: 2em 0;\n      padding: 0.5em 1em;\n      border: solid 3px #95ccff;\n      border-radius: 8px;\n    }\n    .describe .box-title {\n      position: absolute;\n      display: inline-block;\n      top: -13px;\n      left: 10px;\n      padding: 0 9px;\n      line-height: 1;\n      font-size: 19px;\n      background: #FFF;\n      color: #95ccff;\n      font-weight: bold;\n    }\n    .describe p {\n      margin: 0; \n      padding: 0;\n    }\n    .radio .form-control {\n      display: inline;\n        width: auto;\n    }\n    .row {\n        margin-bottom: 15px;\n    }\n    .table-wrapper {\n      max-height: 240px;\n      overflow-y: scroll;\n      margin-bottom: 15px;\n    }\n    -->\n    </style>\n</head>\n<body>\n    <div id=\"app\" class=\"container\">\n        <div class=\"row\">\n            <div class=\"col-md-12\">\n                <h1>ボーナスシミュレーター</h1>\n                <div class=\"describe\">\n                  <p>シェアリングボーナス・ビルディングボーナス・リーディングボーナスを合計し、合計ボーナスを算出します。</p>\n                </div>\n            </div>\n        </div>\n\n        <hr>\n\n        <div class=\"row\">\n            <div class=\"col-xs-12\">\n                <h4>シェアリングボーナス</h4>\n                <div class=\"describe\">\n                  <p>PSVとL1までの購入ポイントから得られるボーナスです。</p>\n                  <p>％は製品によって異なりますが、平均的には５％程度です。</p>\n                </div>\n                <div class=\"radio\">\n                    <label>\n                        <input type=\"radio\" name=\"sharing\" v-model=\"is_fixed_sharing\" value=\"1\" checked>固定値（円）：\n                        <input type=\"number\" pattern=\"\\d*\" class=\"form-control\" v-model=\"fixed_sharing\" :disabled=\"is_fixed_sharing==0\">円（税抜）\n                    </label>\n                </div>\n                <div class=\"radio\">\n                    <label>\n                        <input type=\"radio\" name=\"sharing\" v-model=\"is_fixed_sharing\" value=\"0\">％指定：\n                        <input type=\"number\" pattern=\"\\d*\" class=\"form-control\" v-model=\"percent_sharing_point\" :disabled=\"is_fixed_sharing==1\">point × \n                        <input type=\"number\" pattern=\"\\d*\" class=\"form-control\" v-model=\"percent_sharing_percent\" :disabled=\"is_fixed_sharing==1\">％ × {{ UNIT_PRICE }}円\n                        ・・・{{ percentSharing.toLocaleString() }}円（税抜）\n                    </label>\n                </div>\n            </div>\n        </div>\n\n        <hr>\n\n        <div class=\"row\">\n            <div class=\"col-xs-12\">\n                <h4>ビルディングボーナス</h4>\n                <div class=\"describe\">\n                  <p>自分のお店のボリュームで計算されるボーナスです。</p>\n                  <p>500ポイントを1ブロックとして、ブロック数が増えるにつれてパーセンテージが上昇します。</p>\n                </div>\n                <label>\n                    <input type=\"number\" pattern=\"\\d*\" v-model=\"building_point\">point\n                </label>\n                <br>\n                <div class=\"table-wrapper\">\n                  <table class=\"table table-striped\">\n                      <tr v-for=\"data in buildingDetail\">\n                          <td>{{ data.per }}％</td>\n                          <td>{{ data.point }}point</td>\n                          <td>{{ data.yen }}円</td>\n                          <td>{{ data.block }}Block</td>\n                      </tr>\n                  </table>\n                </div>\n                <div class=\"pull-right\">\n                    合計：{{ building.toLocaleString() }}円\n                </div>\n            </div>\n        </div>\n\n        <hr>\n\n        <h4>リーディングボーナス</h4>\n        <div class=\"row\">\n            <div class=\"col-xs-12\">\n                <div class=\"describe\">\n                  <p>自分と仲間のお店のボリュームで計算されるボーナスです。</p>\n                  <p>自分のお店のボリュームが3000より小さいか大きいかでパーセンテージが変わります。</p>\n                  <p>また、G1のボリュームとG2以下のボリュームの大きさによって、深さ/ボリュームのどちらを優先にした獲得方法にするかが変わります。</p>\n                  <p>※ 反映可能な深さの段階の判定は未対応です。</p>\n                </div>\n                <div class=\"radio\">\n                    自分のＧＳＶ：\n                    <label>\n                        <input type=\"radio\" name=\"gsv\" v-model=\"is_maximum\" value=\"1\" checked>3,000以上\n                    </label>\n                    <label>\n                        <input type=\"radio\" name=\"gsv\" v-model=\"is_maximum\" value=\"0\" >3,000未満\n                    </label>\n</div>\n                <label>\n                    G１・・・<input type=\"number\" pattern=\"\\d*\" v-model=\"g1_point\">point\n                </label>\n                <br>\n                <label>\n                    G２以下・・・<input type=\"number\" pattern=\"\\d*\" v-model=\"g2_point\">point\n                </label>\n            </div>\n        </div>\n        <div class=\"row\">\n            <div class=\"col-xs-6\">\n                <div class=\"panel panel-default\">\n                    <div class=\"panel-heading\">\n                        <h5 :class=\"{ 'text-success' : is_maximum==0 || depthPrice >= volumePrice }\">\n                            深さ\n                            <span :class=\"{ 'glyphicon': is_maximum==0 || depthPrice >= volumePrice, 'glyphicon-ok': is_maximum==0 || depthPrice >= volumePrice }\"></span>\n                        </h5>\n                    </div>\n                    <div class=\"panel-body\">\n                        {{ 1*g1_point + 1*g2_point }}point × {{ leadingPercent * 100 }}％ × {{ UNIT_PRICE }}円・・・{{ depthPrice.toLocaleString() }}円\n                    </div>\n                </div>\n            </div>\n            <div class=\"col-xs-6\">\n                <div class=\"panel panel-default\">\n                    <div class=\"panel-heading\">\n                        <h5 :class=\"{ 'text-success' : is_maximum==1 && depthPrice <= volumePrice }\">\n                            ボリューム\n                            <span :class=\"{ 'glyphicon': is_maximum==1 && depthPrice <= volumePrice, 'glyphicon-ok': is_maximum==1 && depthPrice <= volumePrice }\"></span>\n                        </h5>\n                    </div>\n                    <div class=\"panel-body\">\n                        {{ g1_point }}point × 10％ × {{ UNIT_PRICE }}円・・・{{ volumePrice.toLocaleString() }}円\n                    </div>\n                </div>\n            </div>\n        </div>\n\n        <hr>\n        \n        <div class=\"row\">\n            <div class=\"col-xs-12\">\n                <h4>合計：{{ totalReturn.toLocaleString() }}円（税込：{{ parseInt(totalReturn*1.08).toLocaleString() }}円）</h4>\n                <div class=\"describe\">\n                  <p>シェアリング/ビルディング/リーディングボーナスの合計がこちらです。</p>\n                  <p>なお、全体の売上は約{{ totalAmountSold.toLocaleString() }}円です。</p>\n                </div>\n            </div>\n        </div>\n\n        <hr>\n        \n        <div class=\"row\">\n            <div class=\"col-xs-12\">\n                <footer class=\"container-fluid\">\n                    <small>Copyright (C) 2018 YutaTakahashi</a></small>\n                </footer>\n            </div>\n        </div>\n    </div>\n    <!-- 下記スクリプト -->\n    <script>\n        var UNIT_PRICE = 120; // 1point辺りの価格\n        var UNIT_BLOCK = 500; // 1Block辺りのpoint\n        var BUILDING_PERS = [0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.4];\n        var app = new Vue({\n            el: '#app',\n            data: {\n                // シェアリングボーナスの指定方法\n                is_fixed_sharing: 0,\n                fixed_sharing: \"\",\n                percent_sharing_point: \"\",\n                percent_sharing_percent: 5,\n                building_point: \"\",\n                building: 0,\n                is_maximum: 1,\n                g1_point: \"\",\n                g2_point: \"\",\n            },\n            watch: {\n                percent_sharing_point: function(value) {\n                    if(!isFinite(value)) {\n                        return 0;\n                    } else {\n                        return parseInt(value);\n                    }\n                },\n                percent_sharing_percent: function(value) {\n                    if(!isFinite(value)) {\n                        return 0;\n                    } else {\n                        return parseFloat(value);\n                    }\n                },\n            },\n            computed: {\n                percentSharing: function() {\n                    return this.percent_sharing_point * this.percent_sharing_percent * UNIT_PRICE * 0.01;\n                },\n                // ビルディングボーナスの詳細\n                buildingDetail: function() {\n                    remainder = this.building_point % UNIT_BLOCK // 余り\n                    quotient = (this.building_point - remainder) / UNIT_BLOCK // 商\n                    detail  = []\n                    for(var i = 0; i < quotient; i++) {\n                        var point = 500;\n                        var per = 0;\n                        if(i == quotient - 1) point += remainder;\n                        if(i < BUILDING_PERS.length) {\n                            per = BUILDING_PERS[i];\n                        } else {\n                            per = BUILDING_PERS[BUILDING_PERS.length - 1];\n                        }\n                        detail[i] = {\n                            per: per * 100,\n                            point: point,\n                            yen: per * point * UNIT_PRICE,\n                            block: i + 1\n                        }\n                    }\n                    this.building = 0;\n                    self = this\n                    // 合計ビルディングボーナス計算\n                    detail.forEach(function(data){\n                        self.building += data.yen;\n                    });\n                    return detail;\n                },\n                // BABの利率\n                leadingPercent: function() {\n                    return (this.is_maximum == 1) ? 0.05 : 0.025;\n                },\n                // リーディングボーナス：深さ\n                depthPrice: function() {\n                    result = (\n                        parseInt(isNaN(this.g1_point)||!this.g1_point ? 0 : this.g1_point) + parseInt(isNaN(this.g2_point)||!this.g2_point ? 0 : this.g2_point)\n                    ) * this.leadingPercent * UNIT_PRICE;\n                    (isFinite(result)) ? result=result : result=0;\n                    return result\n                },\n                // リーディングボーナス：ボリューム\n                volumePrice: function() {\n                    return this.g1_point * 0.1 * UNIT_PRICE;\n                },\n                // 合計コミッション\n                totalReturn: function() {\n                    var sharing = 0;\n                    var leading = 0;\n                    if(this.is_fixed_sharing == 1) {\n                        sharing = this.fixed_sharing;\n                    } else {\n                        sharing = this.percentSharing;\n                    }\n                    (sharing!='') ? sharing = sharing : sharing = 0;\n\n                    if(this.is_maximum==0 || this.depthPrice >= this.volumePrice) {\n                        leading = this.depthPrice;\n                    } else {\n                        leading = this.volumePrice;\n                    }\n                    isFinite(leading) ?  leading = leading : leading = 0;\n                    return parseInt(sharing) + parseInt(this.building) + parseInt(leading);\n                },\n                // 総売上\n                totalAmountSold: function() {\n                  return parseInt(0 + this.g1_point + this.g2_point) * 120;\n                }\n            }\n        })\n    </script>\n</body>\n</html>\n",
+                "language": {
+                  "name": "HTML"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2018-03-21T09:04:48Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/88279b2346b14ed54996454dc8d3112c",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "Use vue.js with a html file.",
+            "files": [
+              {
+                "name": "vue_sample_disp_list.html",
+                "text": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title></title>\n    <script src=\"https://cdn.jsdelivr.net/npm/vue\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js\"></script>\n    <script src=\"https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js\"></script>\n    <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css\">\n    <style type=\"text/css\">\n    <!--\n    .container {\n        margin-top: 30px;\n    }\n    -->\n    </style>\n</head>\n<body>\n    <div id=\"app\" class=\"container\">\n        <form action=\"\">\n            <div class=\"row\">\n                <div class=\"col-xs-4\">\n                    <div class=\"form-group\">\n                        <label for=\"volume\">下限Volume(24h)</label>\n                        <input type=\"text\" v-model=\"volume\" class=\"form-control\" id=\"volume\">\n                        <p>{{ disp_volume }}</p>\n                    </div>\n                    <div class=\"form-group\">\n                        <label for=\"start\">読み込み対象ページ</label><br>\n                        <input type=\"text\" v-model=\"start\" id=\"start\">\n                        <span>ページ目から</span>\n                    </div>\n                    <div class=\"form-group\">\n                        <input type=\"text\" v-model=\"end\" id=\"end\">\n                        <span>ページ目まで</span>\n                    </div>\n                    <input type=\"button\" @click=\"dispData()\" value=\"input data\" class=\"btn btn-primary\">\n                </div>\n            </div>\n            <hr>\n            <div class=\"row\" v-show=\"is_disp_data\">\n                <div class=\"col-xs-12\">\n                    <div class=\"form-group\">\n                        <input type=\"button\" @click=\"createCSV()\" value=\"create csv\" class=\"btn btn-primary\">\n                    </div>\n                    <table class=\"table table-striped\">\n                        <tr>\n                            <th>Name</th>\n                            <th>Market Cap</th>\n                            <th>Price</th>\n                            <th>Volume(24h)</th>\n                            <th>Circulating Supply</th>\n                            <th>Change(24h)</th>\n                            <th>Max Supply</th>\n                        </tr>\n                        <tr v-for=\"params in data\">\n                            <td v-for=\"param in params\">{{ param }}</td>\n                        </tr>\n                    </table>\n                </div>\n            </div>\n        </form>\n    </div>\n\n    <!-- 下記スクリプト -->\n    <script>\n        var data = [\n            [\n                'Bitcoin', '$241,966,013,221', '$14,402.60', '$12,249,000,000', '16,800,162 BTC', '3.06%', '21,000,000 BTC'\n            ],\n            [\n                'Ethereum', '$241,966,013,221', '$14,402.60', '$12,249,000,000', '16,800,162 BTC', '3.06%', '21,000,000 BTC'\n            ],\n        ];\n        var app = new Vue({\n            el: '#app',\n            data: {\n                message: 'Hello Vue!',\n                volume: 1,\n                start: 1,\n                end: 1,\n                data: null\n            },\n            computed: {\n                disp_volume: function() {\n                    return '$' + parseInt(this.volume).toLocaleString();\n                },\n                is_disp_data: function() {\n                    return this.data != null && this.data != undefined;\n                }\n            },\n            methods: {\n                dispData: function() {\n                    this.data = data;\n                },\n                createCSV: function() {\n                    this.data = null;\n                }\n            }\n        })\n\n    </script>\n</body>\n</html>\n",
+                "language": {
+                  "name": "HTML"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2018-01-13T11:56:10Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/ff344d3a80cba3779c4b76fbe4f1c117",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "CoffeeScript support for exuberant-ctags",
+            "files": [
+              {
+                "name": ".ctags",
+                "text": "--langdef=CoffeeScript\n--langmap=CoffeeScript:.coffee\n--regex-CoffeeScript=/(^|=[ \\t])*class ([A-Za-z.]+)( extends [A-Za-z.]+)?$/\\2/c,class/\n--regex-CoffeeScript=/^[ \\t]*@?([A-Za-z.]+):.*[-=]>.*$/\\1/f,function/ \n--regex-CoffeeScript=/^[ \\t]*([A-Za-z.]+)[ \\t]+=.*[-=]>.*$/\\1/f,function/\n--regex-CoffeeScript=/^[ \\t]*([A-Za-z.]+)[ \\t]+=[^-=>\\n]*$/\\1/v,variable/",
+                "language": null
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2018-01-12T00:50:41Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/5ec0b00aa4bea6d3e25250f71c2ae838",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "複数のサイト内検索",
+            "files": [
+              {
+                "name": "search_multiple_sites.html",
+                "text": "<!DOCTYPE html>\n<html lang=\"ja\">\n<head>\n    <meta charset=\"utf-8\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <title>複数サイト検索</title>\n    <!--CSS -->\n    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css\" />\n    <!--JS -->\n    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js\"></script>\n    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js\"></script>\n    <!--自作CSS -->\n    <style type=\"text/css\"><!--\n    .container {\n        margin: 30px;\n    }\n    #disp_domains {\n        border: solid;\n        padding: 10px;\n    }\n    input {\n        margin-right: 10px;\n    }\n    input[type=text] {\n        width: 500px;\n    }\n    --></style>\n    <script type=\"text/javascript\">\n        $(function() {\n            // ready\n            var DOMAINS = [ // ここにサイトを追加してください\n                'qiita.com',\n                'www.hatena.ne.jp'\n            ];\n            var domains_param = '';\n            var disp_html = '';\n            $.each(DOMAINS, function(i, value) {\n                if (i == 0) {\n                    domains_param = 'site:' + value;\n                    disp_html = value + '<br>';\n                } else {\n                    domains_param += '+OR+site:' + value;\n                    disp_html += value + '<br>';\n                }\n            });\n            $('#disp_domains').html(disp_html);\n\n            $(\"#submit\").on(\"click\", function() {\n                goSearch();\n            });\n            $(\"#text\").on(\"keydown\", function(e) {\n                if(e.keyCode === 13) {\n                    goSearch();\n                }\n            });\n\n            // リダイレクト\n            function goSearch() {\n                var val = $(\"#text\").val();\n                window.location.href = 'http://google.com/search?q=('+domains_param+')+'+val;\n            }\n        });\n    </script>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"form-group\">\n            <input id=\"text\" type=\"text\" placeholder=\"検索する画像のURL\">\n            <input type=\"button\" value=\"検索\" id=\"submit\" class=\"btn btn-default\">\n        </div>\n        <div class=\"display\">\n            <label for=\"\">検索対象URL</label>\n            <div id=\"disp_domains\"></div>\n        </div>\n    </div>\n</body>\n</html>\n",
+                "language": {
+                  "name": "HTML"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2018-01-05T19:22:56Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/b9aef96bed7e7d4df73388b2d640f359",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "エクセルの特定の番号をキーにjQueryでスクレイピングしてエクセルに値設定する。[WScript]",
+            "files": [
+              {
+                "name": "scrapiyng.js",
+                "text": "// ----------------- グローバル変数 ---------------------------\nvar fso = new ActiveXObject(\"Scripting.FileSystemObject\");\nvar sh = new ActiveXObject( \"WScript.Shell\" );\nvar FILE_NAME = 'xxxx.xlsx'\nvar ORDERS_RANGE = 'D2:D5100'\nvar URL = 'http://xxxx'\nvar fs = new ActiveXObject( \"Scripting.FileSystemObject\" );\nvar file = fs.OpenTextFile( \"./result.txt\", 2, true );\n\n\n\n// ----------------- JScriptの拡張 ---------------------------\n// Object(連想配列)への追加\nObject.prototype.each = function( callback ){\n    for( var e in this ){\n        if( e != \"each\" && e != \"map\" && e != \"keys\" && e != \"exist\"){\n            callback.call( this, e, this[e])\n        }\n    }\n}\n\n// Array(配列)への追加\nArray.prototype.each = function( callback ){\n    for( var i = 0, l = this.length; i < l ; ++i){\n        callback.call( this, this[i], i )\n    }\n}\n\nArray.prototype.map = function( callback ){\n    var ret = []\n    for( var i = 0, l = this.length; i < l ; ++i){\n        ret[ret.length] = callback.call( this, this[i], i )\n    }\n    return ret\n}\n\nArray.prototype.first = function(){\n    return this[0];\n}\n\nArray.prototype.last = function(){\n    return this[this.length-1]\n}\n\nArray.prototype.select = function( callback ){\n    var ret = []\n    this.each(function(v){\n        if( callback.call(this, v) ){\n            ret[ret.length] = v;\n        }\n    })\n    return ret\n}\n\n// ------------------ スクレイピング基本処理 ------------------\n// 現在のページ内でjQueryを有効化する（スクレイピングしやすいように）\nfunction ie_inject_jquery( ie ){\n\tfile.WriteLine(\"-- in ie_inject_jquery --\")\n\t// 既に$があるか\n\t//if( ie.document.$ ) return;\n\n\t// script要素を新規作成\n\tvar elem_head = ie.document.getElementsByTagName('head')[0];\n\tvar elem_script = ie.document.createElement('script');\n\telem_script.src =  \"https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js\";\n\t\t// https://developers.google.com/speed/libraries/devguide#jquery\n\t\n\t// ロード完了時のイベントを定義\n\tvar load_complete = false;\n\telem_script.onload = function(){\n\t\tload_complete = true;\n\t};\n\t\n\t// HEADにscriptタグを追加\n\telem_head.appendChild( elem_script );\n\t\n\t// scriptのロード完了まで待つ\n\twhile( load_complete ){\n\t\tWScript.Sleep( 500 );\n\t}\n\t\n\t// $を評価可能になるまで待つ\n\twhile( ! ie.document.parentWindow.$ ){\n\t\tWScript.Sleep( 500 );\n\t}\n\n\t// WSHのグローバルで参照を定義\n\t$ = ie.document.parentWindow.$;\n\t//log(\"IEにjQuery注入完了\");\n\t\n\tfile.WriteLine(\"-- out ie_inject_jquery --\")\n\treturn;\n}\n\n/*\n// IE上でjQueryを使う\nfunction $( s ){\n\treturn ie.document.parentWindow.$( s, ie.document );\n}\n\n↑ $.trim など様々な関数に対応したいので，\nこの関数は不要。\n\n*/\n\n\n// 遷移先の全ページ内でjQueryを有効化する\nvar always_enable_JQuery = false;\nfunction ie_enableJQuery(){\n\talways_enable_JQuery = true;\n}\n\n\n\n// ------------------ IEの基本操作 ------------------\n\n\n\n// IE起動\nfunction getIE()\n{\n\tvar ie = []\n\tie[0] = WScript.CreateObject(\"InternetExplorer.Application\")\n\tie[1] = WScript.CreateObject(\"InternetExplorer.Application\")\n\tie[0].Visible = true;\n\tie[1].Visible = true;\n\tie_goto_url( ie, \"http://www.google.co.jp/\" );\n\t\t//log(\"ブラウザでのアクセスを開始します。\");\n\t\n\treturn ie;\n}\n\n\n// IEがビジー状態の間待ちます\nfunction ie_wait_while_busy( ie, _url )\n{   \n\tfile.WriteLine(\"-- in ie_wait_while_busy --\")\n\tvar timeout_ms      = 45 * 1000;\n\tvar step_ms         = 100;\n\tvar total_waited_ms = 0;\n\ttry{\n\twhile( ( ie.Busy ) || ( ie.readystate != 4 ) )\n\t{\n\t\tfile.WriteLine(\"-- in while_busy readystate:\" + ie.readystate + \" --\")\n\t\tWScript.Sleep( step_ms );\n\t\tfile.WriteLine(\"-- first sleep_end sleep_time:\" + step_ms + \" --\")\n\t\t\n\t\t// タイムアウトか？\n\t\ttotal_waited_ms += step_ms;\n\t\tif( total_waited_ms >= timeout_ms )\n\t\t{\n\t\t\t/*log(\n\t\t\t\t\"警告：タイムアウトのため，リロードします。(\"\n\t\t\t\t+ ie.LocationURL\n\t\t\t\t\t// http://blog.livedoor.jp/programlog/archives/298228.html\n\t\t\t\t+ \")\"\n\t\t\t);*/\n\t\t\tfile.WriteLine(\"-- reload to timeout --\")\n\t\t\t\n\t\t\t// どこかに移動中なら，そこへの移動を再試行\n\t\t\tif( _url )\n\t\t\t{\n\t\t\t\t//log( _url + \"への遷移を再試行\");\n\t\t\t\tie_goto_url( ie, _url );\n\t\t\t}\n\t\t\telse\n\t\t\t{\n\t\t\t\tlog( \"リロード中\");\n\t\t\t\t\n\t\t\t\t// 移動先が明示されていなければリロード\n\t\t\t\tie.document.location.reload( true );\n\t\t\t\tie_wait_while_busy( ie );\n\t\t\t}\n\t\t\t\n\t\t\tbreak;\n\t\t}\n\t\tfile.WriteLine(\"-- end of while --\")\n\t}\n    }catch(e){\n    \tlog(\"ie_wait_while_busy:\" + e.name+\":\"+e.message);\n    \tlog(ie.LocationURL)\n\t}\n\n\tWScript.Sleep( 1000 )\n\ttimeout_ms = null;\n\tstep_ms = null;\n\ttotal_waited_ms = null;\n\tfile.WriteLine(\"-- out ie_wait_while_busy --\")\n}\n\t// http://language-and-engineering.hatenablog.jp/entry/20100310/p1\n\t// http://language-and-engineering.hatenablog.jp/entry/20100403/p1\n\n\n// ページを移動\nvar ie_num = 0 // 交互に使用\nfunction ie_goto_url( param_ie, url ){\n\t//log(\"アクセスします：\" + url);\n\tvar ie = null;\n\tif(ie_num == 0) ie = param_ie[0];\n\telse if(ie_num == 1) ie = param_ie[1];\n\tie_num = (ie_num+1) % 2;\n\n\tie.Navigate( url );\n\tfile.WriteLine(\"-- in ie_goto_url --\")\n\tie_wait_while_busy( ie, url );\n\t//log(\"ページを開きました。\");\n\t\n\t// IEで常にjQueryを使うか\n\tif( always_enable_JQuery ){\n\t\tie_inject_jquery( ie );\n\t}\n\tfile.WriteLine(\"-- end ie_goto_url --\")\n}\n\n\n// ------------------ エクセルの基本操作 ------------------\n// 絶対パスを取得する\nfunction absolute_path( path ){\n    return fso.getAbsolutePathName( path );\n}\n// Excel操作\nfunction with_excel( file_name , func ){\n    var ole = new ActiveXObject('Excel.Application');\n    ole.Visible = false;\n    ole.DisplayAlerts = false;\n    var book = null;\n    var full_path = null;\n    try {\n        full_path = absolute_path( file_name );\n        book = ole.Workbooks.Open( full_path );\n        func( ole , book );\n    }catch(e){\n        log(\"with_excel\" + e.name+\":\"+e.message);\n    }finally{\n        if( book != null){\n            book.Close(true); // true: 保存して終了\n        }\n        ole.Quit();\n    }\n}\n\n\n// map with activeXobject\nfunction x_map( obj , func ){\n    var ret = []\n    for( var _obj = new Enumerator( obj ); !_obj.atEnd(); _obj.moveNext() ){\n        var v = _obj.item();\n        var value = func(v);\n        if (!(value === false)) ret[ret.length] = value\n    }\n    return ret;\n}\n\n// find with activeXobject\nfunction x_find( obj, func ){\n    var ret = null;\n    for( var _obj = new Enumerator( obj ); !_obj.atEnd(); _obj.moveNext() ){\n        var v = _obj.item();\n        if( func(v) ){\n            ret = v;\n        }\n    }\n    return ret;\n}\n\n// シートからcellを取得する\nfunction range2hash(range){\n    var ret = []\n    ret = x_map( range.rows , function( row ){\n        return x_map( row.columns , function(cell){\n            var obj = new Object();\n            obj.value = cell.value;\n            if ( typeof obj.value == \"undefined\") obj.value = \"\";\n            if ( typeof obj.value == \"unknown\") obj.value = \"#REF\";\n            obj['row'] = cell.row;\n            return obj\n        })\n    })\n    return ret;\n}\n\n// 二次配列データ書き込み\nfunction write_array( sheet, data, start_row, start_col ){\n    var row_n = start_row\n    data.each(function(row){\n        var col_n = start_col\n        row.each(function(value){\n            sheet.cells(row_n, col_n).value = value;\n            col_n++;\n        })\n        row_n++;\n    })\n}\n\n// 単一データ書き込み\nfunction write( sheet, value, row, col ){\n  sheet.cells(row, col).value = value;\n  return sheet\n}\n\n// ------------------- その他 -----------------------------\n// はい/いいえ\nfunction yesno(message, title){\n      return sh.Popup(message,0,title,1);\n}\n\n// 終了\nfunction quit(){\n  WScript.Quit (1);\n}\n\n// デバッグ用\nfunction log(s){\n  WScript.Echo(s);\n}\n\n\n// ------------------ スクレイピング個別処理 ------------------\n// F列（商品名）\nfunction getItem(obj){\n  obj = new Object();\n  obj.value = $(\"#dtl-main-area .fn\").text();\n  obj.col = 6\n  file.WriteLine(\"item wrote.\")\n  return obj\n}\n\n// G列（色）\nfunction getColor(obj){\n  obj = new Object();\n  obj.value = $(\"#dtl-main-area .cart-area form select[name=IRO_SKBT_SEQ] option:selected\").text()\n  obj.col = 7\n  file.WriteLine(\"color wrote.\")\n  return obj\n}\n\n//H列（サイズ）\nfunction getSize(obj, tmp, label){\n  obj = new Object();\n  tmp = $(\"#dtl-main-area .cart-area form select[name=SIZE1_SKBT_SEQ] option:selected\");\n  if(!!tmp.text()) {\n    label = $(tmp).parent().prev().text()\n    if(label == \"サイズ：\") obj.value = tmp.text();\n    else obj.value = \"\";\n  } else {\n    obj.value = \"\"\n  }\n  obj.col = 8\n  file.WriteLine(\"size wrote.\")\n  return obj\n}\n\n// I列（タイプ）\nfunction getType(obj, tmp, label){\n  obj = new Object();\n  tmp = $(\"#dtl-main-area .cart-area form select[name=SIZE1_SKBT_SEQ] option:selected\")\n  if(!!tmp.text()) {\n    label = $(tmp).parent().prev().text()\n    if(label == \"タイプ：\") obj.value = tmp.text();\n    else obj.value = \"\";\n  } else {\n    obj.value = \"\"\n  }\n  obj.col = 9\n  file.WriteLine(\"type wrote.\")\n  return obj\n}\n// J列（価格）\nfunction getPrice(obj){\n  obj = new Object();\n  obj.value = $(\"#dtl-main-area .dtl-spec-area .price .money span\").first().text()\n  obj.col = 10\n  return obj\n}\n// L列（仕入元リンク）\nfunction getLink(obj, ie){\n  obj = new Object();\n  obj.value = ie.LocationURL\n  obj.col = 12\n  return obj\n}\n//P列（在庫数）\nfunction getStock(obj){\n  obj = new Object();\n  obj.value = $(\"#dtl-main-area .cart-area form #deliverydateArea\").prev(\"p\").text()\n  obj.col = 16\n  return obj\n}\n\n\n\n// ------------------メイン処理 ------------------\nvar args = WScript.Arguments\nif(args.length > 0){\n  FILE_NAME = args(0)\n}\nvar result = yesno(\n    \"処理を開始します。よろしいですか？\\n(対象ファイル: \" + absolute_path(FILE_NAME) + \")\",\n    \"商品情報更新\"\n)\nif(result == 2) quit();\n\n// IE起動\nvar ie = getIE();\n// 今後の遷移先の全ページ内でjQueryによるスクレイピングを有効化\nie_enableJQuery();\n\nvar obj = null;\nvar inner_obj = null;\nvar tmp = null;\nvar label = null;\ntry {\n  // エクセル操作\n  with_excel( FILE_NAME, function(ole, book){\n    x_find(book.Worksheets, function(sheet){\n      var orders = range2hash(sheet.range(ORDERS_RANGE));\n      orders.map( function(order, index){\n      \tfile.WriteLine(index + \" data writing.\")\n        if(!order[0]['value']){return;} // エクセルに注文番号が無いものは除外\n        var order_num = order[0]['value']\n        // 遷移\n        ie_goto_url( ie, URL + order_num );\n        // スクレイピングでdata取得\n        // ファイル書き込み\n        var item = getItem(inner_obj)\n        if(!item.value){return;} // 商品名が無いデータは除外\n        write(sheet, item.value, order[0]['row'], item.col);\n        obj = getColor(inner_obj);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n        obj = getSize(inner_obj, tmp, label);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n        obj = getType(inner_obj, tmp, label);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n        obj = getPrice(inner_obj);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n        obj = getLink(inner_obj, ie);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n        obj = getStock(inner_obj);\n        write(sheet, obj.value, order[0]['row'], obj.col);\n      });\n    });\n  });\n\n}catch(e){\n  log(\"main:\" + e.name+\":\"+e.message);\n}finally{\n  file.Close();\n  fs = null;\n  log('処理が終了しました。');\n}\n",
+                "language": {
+                  "name": "JavaScript"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2016-12-28T00:17:57Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/df80f7ec8a545fed923b4cb1ee2cf562",
+            "owner": {
+              "login": "tashua314"
+            }
+          },
+          {
+            "description": "jqueryが読み込まれていないページでjquery読み込ませる",
+            "files": [
+              {
+                "name": "import.js",
+                "text": "// 要素検証でコンソールより入力\nvar jquery=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js\";\nvar xhr=null;\nif (window.XMLHttpRequest)xhr=new XMLHttpRequest();\nelse if(window.ActiveXObject)\n    try {xhr=new ActiveXObject(\"Msxml2.XMLHTTP\");}\n    catch(e){xhr=new ActiveXObject(\"Microsoft.XMLHTTP\");}\nxhr.open(\"GET\",jquery,false);xhr.send(\"\");eval(xhr.responseText);",
+                "language": {
+                  "name": "JavaScript"
+                }
+              }
+            ],
+            "stargazerCount": 0,
+            "createdAt": "2016-05-31T02:43:24Z",
+            "comments": {
+              "totalCount": 0
+            },
+            "forks": {
+              "totalCount": 0
+            },
+            "url": "https://gist.github.com/e2ed30d281f14c07606166a1bdd1f7b3",
+            "owner": {
+              "login": "tashua314"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -24,59 +24,23 @@
   let filteredGists = gists; // フィルタリングされたGistsを格納
   let searchQuery = ""; // 検索フォームに入力された値
   let tags: string[] = []; // キーワードタグの配列
-  
-  let token = '<PAT>'; // ここにGitHubの個人アクセストークンを入力
-
-  // GraphQLクエリ
-  const query = `
-    query {
-      viewer {
-        gists(first: 10, orderBy: {field: CREATED_AT, direction: DESC}) {
-          nodes {
-            owner { login }
-            description
-            files {
-              name
-              text
-              language { name }
-            }
-            stargazerCount
-            createdAt
-            comments {
-              totalCount
-            }
-            forks {
-              totalCount
-            }
-            url
-          }
-        }
-      }
-    }
-  `;
 
   // Prism.jsを動的にインポートして、クライアントサイドで使用
   async function applySyntaxHighlighting() {
     const Prism = await import('prismjs');
+    // @ts-ignore
     await import('prismjs/components/prism-javascript');  
+    // @ts-ignore
     await import('prismjs/components/prism-python');     
+    // @ts-ignore
     await import('prismjs/components/prism-java');
     Prism.highlightAll();
   }
 
   // GraphQL APIへのリクエスト
   async function fetchGists() {
-    const response = await fetch('https://api.github.com/graphql', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ query })
-    });
-
+    const response = await fetch('/gists.json');
     const json = await response.json();
-    console.log(json);
     gists = json.data.viewer.gists.nodes.map((gist: any) => {
       const title = gist.files.length > 0 ? `${gist.owner.login}/${gist.files[0].name}` : 'No Title';
       const codePreview = gist.files.length > 0 ? gist.files[0].text : 'No Code Available';

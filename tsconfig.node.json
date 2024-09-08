@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",             // 出力ファイルのターゲット（Node.jsのバージョンに合わせて調整）
+    "outDir": "./dist/scripts",     // 出力先ディレクトリ
+    "rootDir": "./scripts",     // スクリプトファイルが存在するルートディレクトリ
+    "declaration": true,            // 型定義ファイルを生成（オプション）
+    "esModuleInterop": true,        // ES6モジュールの互換性を有効化
+    "moduleResolution": "node",
+    "strict": true,                 // 厳格モードを有効化
+    "skipLibCheck": true            // 型定義のスキップ（ビルドを速くするため）
+  },
+  "include": ["scripts/**/*.ts"],  // `src/scripts` ディレクトリ内の全ての TypeScript ファイルを対象にする
+  "exclude": ["node_modules", "dist"]  // 出力先とモジュールフォルダは除外
+}
