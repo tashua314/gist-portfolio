@@ -15,6 +15,9 @@
   let searchQuery = "";
   let tags: string[] = [];
   let showScrollButton = false; // 最上部に戻るボタンの表示管理
+  const scrollSteps = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+  // 各スクロール率に達成したかどうかのflag
+  const hasTrackedScroll: { [key: number]: boolean } = {};
 
   // Prism.jsを動的にインポートして、クライアントサイドで使用
   async function applySyntaxHighlighting() {
@@ -65,6 +68,12 @@
   function addTag(event: KeyboardEvent) {
     if (event.key === 'Enter' && searchQuery.trim() !== "") {
       tags = [...tags, searchQuery.trim()];
+      // Google Analytics イベント送信
+      gtag('event', 'add_tag', {
+        event_category: 'search',
+        event_label: searchQuery.trim(),
+        value: 1
+      });
       searchQuery = "";
       filterGists();
     }
@@ -84,6 +93,11 @@
   // 最上部に戻る
   function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+     // GAイベント送信
+     gtag('event', 'click_back_to_top', {
+       event_category: 'navigation',
+       event_label: 'back_to_top'
+     });
   }
 
   // アンカーリンクのクリックでスムーズスクロール
@@ -96,8 +110,30 @@
 
   onMount(() => {
     fetchGists();
-    window.addEventListener('scroll', handleScroll); // スクロールイベント監視
+    window.addEventListener('scroll', () => {
+      handleScroll();
+      const scrollPercentage = (window.scrollY + window.innerHeight) / document.body.scrollHeight * 100;
+      scrollSteps.forEach(step => {
+        if (scrollPercentage > step && !hasTrackedScroll[step]) {
+          // GAイベント送信
+          gtag('event', 'scroll', {
+            event_category: 'interaction',
+            event_label: `scroll_${step}_percent`
+          });
+          hasTrackedScroll[step] = true;
+        }
+      });
+    });
   });
+
+  function handleAnchorClick(id: string) {
+    scrollToAnchor(id);
+    // GAイベント送信
+    gtag('event', 'click_anchor', {
+      event_category: 'navigation',
+      event_label: id
+    });
+  }
 </script>
 
 <!-- 検索フォーム -->
@@ -128,7 +164,7 @@
       {#each filteredGists as gist}
         <tr class="hover:bg-gray-50">
           <td class="border px-4 py-2">
-            <button on:click={() => scrollToAnchor(gist.id)} class="text-blue-600 hover:underline bg-transparent border-none cursor-pointer">{gist.title}</button>
+            <button on:click={() => handleAnchorClick(gist.id)} class="text-blue-600 hover:underline bg-transparent border-none cursor-pointer">{gist.title}</button>
           </td>
           <td class="border px-4 py-2">{gist.description || 'No description'}</td>
         </tr>
@@ -163,7 +199,11 @@
             </span>
           </div>
 
-          <a href={gist.url} target="_blank" class="text-blue-600 hover:underline mb-4 block">View on GitHub</a>
+          <a href={gist.url} target="_blank" class="text-blue-600 hover:underline mb-4 block"
+          on:click={() => gtag('event', 'click_gist_link', {
+            event_category: 'gist',
+            event_label: gist.title
+          })}>View on GitHub</a>
 
           <!-- コードプレビュー -->
           <h3 class="text-lg font-semibold mb-2">Code Preview ({gist.language}):</h3>
