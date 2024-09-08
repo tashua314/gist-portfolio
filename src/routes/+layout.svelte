@@ -5,9 +5,36 @@ import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
 import { faTwitter } from '@fortawesome/free-brands-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import Analytics from '$lib/ga.svelte'
+
+let title = "ゆーちゃん's Gists Portfolio";
+let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。';
+
 </script>
 
-<Analytics />
+<svelte:head>
+  <!-- ページタイトル -->
+  <title>{title}</title>
+
+  <!-- メタデータ -->
+  <meta name="description" content="{description}" />
+
+  <!-- Open Graph (OG) Tags -->
+  <meta property="og:title" content="{title}" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tashua314.github.io/gist-portfolio/" />
+  <!-- <meta property="og:image" content="/path/to/og-image.jpg" /> -->
+
+  <!-- Twitter Card Tags -->
+  <!-- <meta name="twitter:card" content="summary_large_image" /> -->
+  <meta name="twitter:title" content="{title}" />
+  <meta name="twitter:description" content="{description}" />
+  <!-- <meta name="twitter:image" content="/path/to/twitter-image.jpg" /> -->
+
+  <!-- Viewport設定 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <Analytics />
+</svelte:head>
 
 <header class="bg-blue-600 p-4 shadow-md">
   <div class="container mx-auto flex justify-between items-center">
