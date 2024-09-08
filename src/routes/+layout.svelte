@@ -8,7 +8,7 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import Analytics from '$lib/ga.svelte'
 
 let title = "ゆーちゃん's Gists Portfolio";
-let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。';
+let description = 'ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。以下の機能があります：GitHub Gistsの一覧表示、詳細情報とコードプレビューの表示、キーワード検索、スクロールに応じた「最上部に戻る」ボタンの表示、GAイベント設置。';
 </script>
 
 <svelte:head>
