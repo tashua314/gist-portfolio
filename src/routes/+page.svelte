@@ -41,7 +41,7 @@
   async function fetchGists() {
     const response = await fetch('gists.json');
     const json = await response.json();
-    gists = json.data.viewer.gists.nodes.map((gist: any) => {
+    gists = json.map((gist: any) => {
       const title = gist.files.length > 0 ? `${gist.owner.login}/${gist.files[0].name}` : 'No Title';
       const codePreview = gist.files.length > 0 ? gist.files[0].text : 'No Code Available';
       const language = gist.files.length > 0 && gist.files[0].language ? gist.files[0].language.name.toLowerCase() : 'plaintext';
