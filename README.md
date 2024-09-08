@@ -1,38 +1,71 @@
-# create-svelte
+# ゆーちゃんのGistsポートフォリオ
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+このプロジェクトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。Svelteを使用して構築されており、ユーザーがGistの一覧を確認し、詳細やコードプレビューを閲覧できるようにしています。
 
-## Creating a project
+## サービスの概要
 
-If you're seeing this, you've probably already done this step. Congrats!
+このサイトでは、以下の機能を提供しています：
+- GitHub Gistsの一覧表示
+- 各Gistの詳細情報とコードプレビューの表示
+- キーワード検索によるGistのフィルタリング
+- スクロールに応じた「最上部に戻る」ボタンの表示
+- GAイベント設置
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## 工夫したこと
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+### Gistの一覧をスクリプトで取得
+GistsはJSONファイルから動的に取得され、Prism.jsを使用してコードのシンタックスハイライトを適用しています。
+この方法を採用した理由は、APIトークンを隠蔽化し、セキュリティを確保するためです。
+さらに、動的にデータを取得することで、初期ロード時間を短縮し、ユーザーエクスペリエンスを向上させることができます。
 
-## Developing
+### Google Analyticsの統合
+ユーザーの操作（タグ追加、アンカーリンクのクリック、スクロールなど）に応じてGoogle Analyticsイベントを送信し、ユーザーの行動をトラッキングしています。
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## 実行方法
 
-```bash
-npm run dev
+1. このリポジトリをクローンします：
+   ```bash
+   git clone https://github.com/tashua314/gist-portfolio.git
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+2. プロジェクトのディレクトリに移動します：
+   ```bash
+   cd gist-portfolio
+   ```
 
-## Building
+3. 依存関係をインストールします：
+   ```bash
+   npm install
+   ```
 
-To create a production version of your app:
+4. GitHubからPersonal Access Tokenを取得し、`.env`ファイルに`GET_GIST_TOKEN`を設定します：
 
-```bash
-npm run build
-```
+   1. GitHubにログインします。
+   2. 右上のプロフィールアイコンをクリックし、「Settings」を選択します。
+   3. 左側のメニューから「Developer settings」を選択します。
+   4. 「Personal access tokens」をクリックし、「Tokens (classic)」を選択します。
+   5. 「Generate new token」をクリックします。
+   6. トークンに名前を付け、必要なスコープ（例：`gist`）を選択します。
+   7. 「Generate token」をクリックし、表示されたトークンをコピーします。
 
-You can preview the production build with `npm run preview`.
+   8. プロジェクトのルートディレクトリに`.env`ファイルを作成し、以下のように設定します：
+   ```
+   GET_GIST_TOKEN=your_github_token_here
+   ```
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+5. Gistsを取得し、`static/gists.json`に出力します：
+   ```bash
+   npm run fetch-gists
+   ```
+
+6. 開発サーバーを起動します：
+   ```bash
+   npm run dev
+   ```
+
+7. ブラウザで以下のURLにアクセスします：
+   ```
+   http://localhost:5173
+   ```
+
+これで、ローカル環境でプロジェクトを実行することができます。
