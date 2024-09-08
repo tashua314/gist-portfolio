@@ -5,22 +5,10 @@
   // Font Awesomeアイコンのインポート
   import { faStar, faComment, faCodeBranch, faCalendar, faFile, faArrowUp } from '@fortawesome/free-solid-svg-icons';
   import { FontAwesomeIcon } from '@fortawesome/svelte-fontawesome';
+	import type { Gist } from '../types/gist';
+	import SearchForm from '../components/SearchForm.svelte';
 
-  let gists: Array<{
-    owner: { login: string };
-    description: string;
-    files: Array<{ name: string; text: string; language: { name: string } | null }>;
-    stargazerCount: number;
-    createdAt: string;
-    comments: { totalCount: number };
-    forks: { totalCount: number };
-    url: string;
-    title: string;
-    codePreview: string;
-    language: string;
-    fileCount: number;
-    id: string; // GistのIDを追加
-  }> = [];
+  let gists: Gist[] = [];
 
   let filteredGists = gists;
   let searchQuery = "";
@@ -40,6 +28,8 @@
     await import('prismjs/components/prism-ruby');
     // @ts-ignore
     await import('prismjs/components/prism-json');
+    // @ts-ignore
+    await import('prismjs/components/prism-coffeescript');
     Prism.highlightAll();
   }
 
@@ -47,12 +37,12 @@
   async function fetchGists() {
     const response = await fetch('gists.json');
     const json = await response.json();
-    gists = json.map((gist: any, index: number) => {
+    gists = json.map((gist: Gist, index: number) => {
       const title = gist.files.length > 0 ? `${gist.owner.login}/${gist.files[0].name}` : 'No Title';
       const codePreview = gist.files.length > 0 ? gist.files[0].text : 'No Code Available';
       const language = gist.files.length > 0 && gist.files[0].language ? gist.files[0].language.name.toLowerCase() : 'plaintext';
       const fileCount = gist.files.length;
-      return { ...gist, title, codePreview, language, fileCount, id: `gist-${index}` }; // IDを付与
+      return { ...gist, title, codePreview, language, fileCount, id: `gist-${index}` }; // IDをGistのIDに変更
     });
 
     filteredGists = gists;
@@ -111,25 +101,13 @@
 
 <!-- 検索フォーム -->
 <section class="container mx-auto p-8">
-  <div class="mb-6">
-    <input
-      type="text"
-      class="border border-gray-300 rounded-lg p-2 w-full"
-      placeholder="Search and press Enter"
-      bind:value={searchQuery}
-      on:keydown={addTag}
-    />
-    <div class="mt-4 flex flex-wrap">
-      {#each tags as tag, index}
-        <div class="flex items-center bg-blue-100 text-blue-600 px-4 py-2 rounded-full mr-2 mb-2">
-          <span>{tag}</span>
-          <button class="ml-2 text-blue-600 hover:text-blue-800" on:click={() => removeTag(index)}>
-            &times;
-          </button>
-        </div>
-      {/each}
-    </div>
-  </div>
+  <!-- 検索フォームコンポーネント -->
+  <SearchForm
+    bind:searchQuery
+    {tags}
+    {addTag}
+    {removeTag}
+  />
 
   <p class="text-center text-lg mb-8">
     このサイトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオです。<br>
@@ -149,7 +127,7 @@
       {#each filteredGists as gist}
         <tr class="hover:bg-gray-50">
           <td class="border px-4 py-2">
-            <a href="javascript:void(0)" on:click={() => scrollToAnchor(gist.id)} class="text-blue-600 hover:underline">{gist.title}</a>
+            <button on:click={() => scrollToAnchor(gist.id)} class="text-blue-600 hover:underline bg-transparent border-none cursor-pointer">{gist.title}</button>
           </td>
           <td class="border px-4 py-2">{gist.description || 'No description'}</td>
         </tr>
