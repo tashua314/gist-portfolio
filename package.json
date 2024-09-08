@@ -2,6 +2,9 @@
   "name": "gist-portfolio",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "node": ">=21.1.0"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "npm run build:sveltekit && npm run build:node",
