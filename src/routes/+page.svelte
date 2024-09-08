@@ -147,7 +147,7 @@
           <pre class="bg-gray-100 p-4 rounded-md overflow-x-auto max-h-64 overflow-y-auto">
             <!-- インデント防止 -->
             <code class={`language-${gist.language}`}>
-{@html gist.codePreview.trim()}
+{gist.codePreview.trim()}
             </code>
           </pre>
         </div>
