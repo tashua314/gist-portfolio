@@ -12,13 +12,8 @@
     "strict": true,
     "sourceMap": true,
     "baseUrl": ".",                             // プロジェクトのルートを基準
-    "paths": {
-      "$lib/*": ["src/lib/*"],
-      "$routes/*": ["src/routes/*"]
-    },
     "types": ["svelte"],                        // SvelteKitの型を優先
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte"],  // SvelteKitの関連ファイル
   "exclude": ["node_modules", "dist"]
 }
