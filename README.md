@@ -1,6 +1,12 @@
 # ゆーちゃんのGistsポートフォリオ
 
+
+https://github.com/user-attachments/assets/3ecfbd4d-7786-44a4-9d51-a6ec90add2be
+
+
 このプロジェクトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオサイトです。Svelteを使用して構築されており、ユーザーがGistの一覧を確認し、詳細やコードプレビューを閲覧できるようにしています。
+
+https://tashua314.github.io/gist-portfolio/
 
 ## サービスの概要
 
