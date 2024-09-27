@@ -59,7 +59,12 @@
       filteredGists = gists;
     } else {
       filteredGists = gists.filter((gist) => {
-        return tags.every(tag => gist.title.includes(tag) || gist.description.includes(tag) || gist.codePreview.includes(tag));
+        return tags.every(tag => {
+          const lowerTag = tag.toLowerCase();
+          return gist.title.toLowerCase().includes(lowerTag) ||
+                 gist.description.toLowerCase().includes(lowerTag) ||
+                 gist.codePreview.toLowerCase().includes(lowerTag);
+        });
       });
     }
   }
@@ -67,11 +72,11 @@
   // キーワードタグを追加してAND検索
   function addTag(event: KeyboardEvent) {
     if (event.key === 'Enter' && searchQuery.trim() !== "") {
-      tags = [...tags, searchQuery.trim()];
+      tags = [...tags, searchQuery.trim().toLocaleLowerCase()];
       // Google Analytics イベント送信
       gtag('event', 'add_tag', {
         event_category: 'search',
-        event_label: searchQuery.trim(),
+        event_label: searchQuery.trim().toLocaleLowerCase(),
         value: 1
       });
       searchQuery = "";
@@ -83,6 +88,25 @@
   function removeTag(index: number) {
     tags = tags.filter((_, i) => i !== index);
     filterGists();
+  }
+
+  // デフォルトタグのリスト
+  const defaultTags = ["Svelte", "Python", "JavaScript", "CoffeeScript", "Vue", "Bootstrap", "jQuery", "HTML"]
+;
+
+  // デフォルトタグを追加する関数
+  function addDefaultTag(tag: string) {
+    const lowerTag = tag.toLowerCase();
+    if (!tags.includes(lowerTag)) {
+      tags = [...tags, lowerTag];
+      // Google Analytics イベント送信
+      gtag('event', 'add_tag', {
+        event_category: 'search',
+        event_label: lowerTag,
+        value: 1
+      });
+      filterGists();
+    }
   }
 
   // スクロールに応じて「最上部に戻る」ボタンを表示
@@ -138,6 +162,18 @@
 
 <!-- 検索フォーム -->
 <section class="container mx-auto p-8">
+  <!-- デフォルトタグの表示 -->
+  <div class="mb-4">
+    {#each defaultTags as tag}
+      <button
+        class="bg-gray-200 text-gray-800 px-3 py-1 rounded-full mr-2 mb-2 hover:bg-gray-300"
+        on:click={() => addDefaultTag(tag)}
+      >
+        {tag}
+      </button>
+    {/each}
+  </div>
+
   <!-- 検索フォームコンポーネント -->
   <SearchForm
     bind:searchQuery
