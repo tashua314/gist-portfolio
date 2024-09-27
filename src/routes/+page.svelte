@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { base } from '$app/paths';
   import 'prismjs/themes/prism.css';
+  import Prism from 'prismjs';
 
   // Font Awesomeアイコンのインポート
   import { faStar, faComment, faCodeBranch, faCalendar, faFile, faArrowUp } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +22,6 @@
 
   // Prism.jsを動的にインポートして、クライアントサイドで使用
   async function applySyntaxHighlighting() {
-    const Prism = await import('prismjs');
     // @ts-ignore
     await import('prismjs/components/prism-javascript');
     // @ts-ignore
@@ -34,8 +34,6 @@
     await import('prismjs/components/prism-json');
     // @ts-ignore
     await import('prismjs/components/prism-coffeescript');
-    // @ts-ignore
-    await import('prismjs/components/prism-svelte');
     Prism.highlightAll();
   }
 
@@ -93,7 +91,9 @@
   }
 
   // デフォルトタグのリスト
-  const defaultTags = ["Svelte", "Python", "JavaScript", "CoffeeScript", "Vue", "Bootstrap", "jQuery", "HTML"]
+  const defaultTags = ["svelte", "python", "javascript", "jquery", "bootstrap", "vue", "html", "coffeescript", "ctags", "mecab", "github", "wscript", "node", "pillow", "langchain", "chatopenai"]
+
+
 ;
 
   // デフォルトタグを追加する関数
