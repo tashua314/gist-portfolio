@@ -34,6 +34,8 @@
     await import('prismjs/components/prism-json');
     // @ts-ignore
     await import('prismjs/components/prism-coffeescript');
+    // @ts-ignore
+    await import('prismjs/components/prism-svelte');
     Prism.highlightAll();
   }
 
