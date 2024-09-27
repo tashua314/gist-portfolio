@@ -184,31 +184,29 @@
     {removeTag}
   />
 
-  <p class="text-center text-lg mb-8">
-    このサイトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオです。<br>
-    各Gistの詳細やコードプレビューを確認することができます。<br>
-    プロジェクトのアイデアを探しているときや、開発のヒントとして役立ててもらえると幸いです。<br>
-  </p>
+  {#if tags.length === 0}
+    <p class="text-center text-lg mb-8">
+      このサイトは、ゆーちゃんのGitHub Gistsを集めたポートフォリオです。<br>
+      各Gistの詳細やコードプレビューを確認することができます。<br>
+      プロジェクトのアイデアを探しているときや、開発のヒントとして役立ててもらえると幸いです。<br>
+    </p>
+  {/if}
 
-  <!-- Gistsの概要をテーブル形式で表示 -->
-  <table class="table-auto w-full text-left border-collapse mb-12">
-    <thead>
-      <tr class="bg-gray-100">
-        <th class="px-4 py-2">ファイル名</th>
-        <th class="px-4 py-2">概要</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each filteredGists as gist}
-        <tr class="hover:bg-gray-50">
-          <td class="border px-4 py-2">
-            <button on:click={() => handleAnchorClick(gist.id)} class="text-blue-600 hover:underline bg-transparent border-none cursor-pointer">{gist.title}</button>
-          </td>
-          <td class="border px-4 py-2">{gist.description || 'No description'}</td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+<!-- Gistsの概要を表示 -->
+<div class="mb-12 border rounded-lg overflow-hidden">
+  {#each filteredGists as gist, i}
+    <div class={`border-b p-4 ${i % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+      <div class="md:flex md:justify-between md:items-center">
+        <div class="md:w-1/2">
+          <button on:click={() => handleAnchorClick(gist.id)} class="text-blue-600 hover:underline bg-transparent border-none cursor-pointer">{gist.title}</button>
+        </div>
+        <div class="md:w-1/2 mt-2 md:mt-0">
+          {gist.description || 'No description'}
+        </div>
+      </div>
+    </div>
+  {/each}
+</div>
 
   <!-- フィルタリングされたカードの表示 -->
   <div class="grid grid-cols-1 gap-8">
