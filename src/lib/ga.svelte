@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { gtag } from '$lib/gtag';
 
   onMount(() => {
     if (typeof gtag !== 'undefined') {
@@ -18,10 +19,9 @@
   </script>
   <script>
     window.dataLayer = window.dataLayer || []
-
-    function gtag() {
+    window.gtag = function() {
       dataLayer.push(arguments)
-    }
+    };
 
     gtag('js', new Date())
     gtag('config', 'G-MB7JWEJ8K7', {

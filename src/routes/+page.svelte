@@ -3,6 +3,7 @@
   import { base } from '$app/paths';
   import 'prismjs/themes/prism.css';
   import Prism from 'prismjs';
+  import { gtag } from '$lib/gtag';
 
   // Font Awesomeアイコンのインポート
   import { faStar, faComment, faCodeBranch, faCalendar, faFile, faArrowUp } from '@fortawesome/free-solid-svg-icons';
